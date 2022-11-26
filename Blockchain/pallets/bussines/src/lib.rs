@@ -17,7 +17,6 @@ use frame_system::pallet_prelude::*;
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/reference/frame-pallets/>
 pub use pallet::*;
-use sp_io::hashing::blake2_128;
 
 pub type BalanceOf<T> =
 	<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
@@ -214,26 +213,37 @@ pub mod pallet {
 
 			let item_id = T::Hashing::hash_of(&media.clone());
 
-			let item_info = BusinessItem {
-				media: media.clone(),
-				title: title.clone(),
-				description: description.clone(),
-				price: price.clone(),
-				count: count.clone(),
-				itemId: item_id,
-			};
+			let _itemInfo = Self::items(&who.clone());
+			match _itemInfo {
+				None => {
+					let item_info = BusinessItem {
+						media: media.clone(),
+						title: title.clone(),
+						description: description.clone(),
+						price: price.clone(),
+						count: count.clone(),
+						itemId: item_id,
+					};
+					let mut add_item: Vec<BusinessItem<T>> = Vec::new();
 
-			Business::<T>::mutate(who.clone(), |store| -> DispatchResult {
-				match store {
-					Some(store) => {
-						let mut store_item_vec: Vec<BusinessItem<T>> = Vec::new();
-						store_item_vec.push(item_info);
-						<Items<T>>::insert(who.clone(), store_item_vec);
-						Ok(())
-					},
-					_ => Err(<Error<T>>::StoreItemNotFound.into()),
-				}
-			});
+					add_item.push(item_info);
+					<Items<T>>::insert(who.clone(), &add_item);
+				},
+
+				Some(mut item) => {
+					let item_info = BusinessItem {
+						media: media.clone(),
+						title: title.clone(),
+						description: description.clone(),
+						price: price.clone(),
+						count: count.clone(),
+						itemId: item_id,
+					};
+
+					&item.push(item_info);
+					<Items<T>>::insert(who.clone(), &item);
+				},
+			}
 
 			Self::deposit_event(Event::ItemCreated(Some(item_id)));
 
@@ -304,29 +314,6 @@ pub mod pallet {
 
 		#[pallet::weight(10000)]
 		#[transactional]
-		pub fn transferTo(
-			origin: OriginFor<T>,
-			sendTo: T::AccountId,
-			amount: BalanceOf<T>,
-		) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-
-			let mut count = 0;
-			while count <= 166666 {
-				T::Currency::transfer(
-					&who.clone(),
-					&sendTo,
-					amount,
-					ExistenceRequirement::KeepAlive,
-				)?;
-				log::info!("***** Transfer {:?}", count);
-				count = count + 1;
-			}
-			Ok(())
-		}
-
-		#[pallet::weight(10000)]
-		#[transactional]
 		pub fn payBasket(
 			origin: OriginFor<T>,
 			storeId: <T as frame_system::Config>::Hash,
@@ -339,15 +326,30 @@ pub mod pallet {
 						let mut total_price = 0;
 						total_price = basket.items.iter().map(|x| x.price * x.count).sum();
 						log::info!("**************** Total Price {:?}", total_price);
-						let storeInfo =
-							Self::businesss(&who.clone()).ok_or(<Error<T>>::StoreNoFound)?;
+						// let fff = total_price as u64;
+						let total_cost: BalanceOf<T> = total_price.into();
 
-						// T::Currency::transfer(
-						// 	&who.clone(),
-						// 	&basket.basketOwner,
-						// 	total_price,
-						// 	ExistenceRequirement::KeepAlive,
-						// )?;
+						T::Currency::transfer(
+							&who.clone(),
+							&basket.basketOwner,
+							total_cost,
+							ExistenceRequirement::KeepAlive,
+						)?;
+
+						let transactionHistory = UserTransationHistory {
+							transactionId: T::Hashing::hash_of(&who.clone()),
+							items: basket.items.clone(),
+							customerPay: true,
+							confirmPay: true,
+							storeOwner: basket.basketOwner.clone(),
+							storeId,
+						};
+
+						<UserTransactions<T>>::insert(&who.clone(), &transactionHistory);
+						<UserTransactions<T>>::insert(&basket.basketOwner, &transactionHistory);
+
+						Baskets::<T>::remove(storeId);
+
 						Ok(())
 					},
 					_ => Err(<Error<T>>::StoreItemNotFound.into()),
@@ -361,9 +363,7 @@ pub mod pallet {
 
 impl<T: Config> Pallet<T> {
 	// Note the warning above about saturated conversions
-	// pub fn u64_to_balance_saturated(input: u64) -> BalanceOf<T> {
-	// 	input.saturated_into()
-	// }
+
 	// fn get_and_increment_nonce() -> Vec<u8> {
 	// 	let nonce = Nonce::<T>::get();
 	// 	let no = Some(nonce);
