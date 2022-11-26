@@ -1,26 +1,25 @@
-import React, { createRef } from 'react'
+import React from 'react'
 import {
-  Container,
   Dimmer,
   Loader,
   Grid,
-  Sticky,
   Message,
 } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
+import { Link, Route, Routes } from "react-router-dom";
 
 import { SubstrateContextProvider, useSubstrateState } from './substrate-lib'
-import { DeveloperConsole } from './substrate-lib/components'
+// import { DeveloperConsole } from './substrate-lib/components'
 
-import AccountSelector from './AccountSelector'
+// import AccountSelector from './AccountSelector'
 // import Balances from './Balances'
-import BlockNumber from './BlockNumber'
-import Events from './Events'
-import Interactor from './Interactor'
-import Metadata from './Metadata'
-import NodeInfo from './NodeInfo'
-import RegisterStore from './RegisterStore'
-import StoreAddItem from './StoreAddItem';
+// import BlockNumber from './BlockNumber'
+// import Events from './Events'
+// import Interactor from './Interactor'
+// import Metadata from './Metadata'
+// import NodeInfo from './NodeInfo'
+// import RegisterStore from './RegisterStore'
+// import StoreAddItem from './StoreAddItem';
 import ItemList from './ItemList';
 
 // import TemplateModule from './TemplateModule'
@@ -59,44 +58,25 @@ function Main() {
     )
   }
 
-  const contextRef = createRef()
+  // const contextRef = createRef()
 
   return (
-    <div ref={contextRef}>
-      <Sticky context={contextRef}>
-        <AccountSelector />
-      </Sticky>
-      <Container>
-        <Grid stackable columns="equal">
-          <Grid.Row stretched>
-            <NodeInfo />
-            <Metadata />
-            <BlockNumber />
-            <BlockNumber finalized />
-          </Grid.Row>
-          {/* <Grid.Row stretched>
-            <Balances />
-          </Grid.Row> */}
-          {/* <Grid.Row>
-            <Transfer />
-            <Upgrade />
-          </Grid.Row> */}
-          <Grid.Row>
-            <Interactor />
-            <Events />
-          </Grid.Row>
-          <Grid.Row>
-            <RegisterStore />
-            <StoreAddItem/>
-            <ItemList/>
-          </Grid.Row>
-          {/* <Grid.Row>
-            <TemplateModule />
-          </Grid.Row> */}
-        </Grid>
-      </Container>
-      <DeveloperConsole />
+    <div>
+    <div>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/itemList">About</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Routes>
+        <Route path="/itemList" element={<ItemList />} />
+        {/* <Route path="/" element={<Home />} /> */}
+      </Routes>
     </div>
+  </div>
   )
 }
 
@@ -107,3 +87,4 @@ export default function App() {
     </SubstrateContextProvider>
   )
 }
+
