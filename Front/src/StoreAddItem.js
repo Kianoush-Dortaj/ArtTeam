@@ -1,53 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
 
 export default function StoreAddItem() {
-    
-    var start = window.performance.now();
-    let infoList = [];
-    // let [timer, timingMonitor] = [0, () => timer = !timer ? Date.now() : `${Date.now() - timer}ms`]
+    const [state, setState] = useState({
+        media: "",
+        description: "",
+        title: "",
+        price: 0,
+        count: 0,
+    });
 
     const { api, currentAccount } = useSubstrateState()
 
     const txResHandler = ({ status }) =>
         status.isFinalized
-            ? calcTime(status.asFinalized.toString(),true)
-            : calcTime(status.type,false)
+            ? console.log(`😉 Finalized. Block hash: ${status.asFinalized.toString()}`)
+            : console.log(`Current transaction status: ${status.type}`)
 
-    const calcTime = (hash,doagain) => {
-        var ms = window.performance.now() - start;
-        var d = new Date(1000 * Math.round(ms / 1000)); // round to nearest second
-        function pad(i) {
-            return ('0' + i).slice(-2);
-        }
-        var str = d.getUTCHours() + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds());
-        // infoList.push({
-        //     time:str,
-        //     status:hash
-        // })
-        // setState(infoList)
-            console.log(`Time : ${str} - Status : ${hash}`)
-        if(doagain){
-
-            handleSubmit();
-        }
-    }
-
-    // Console output: "102ms", for example 
 
 
     const txErrHandler = err =>
         console.log(`😞 Transaction Failed: ${err.toString()}`)
 
-    // const handleInputChange = (event) => {
-    //     const { name, value } = event.target;
-    //     setState((prevProps) => ({
-    //         ...prevProps,
-    //         [name]: value
-    //     }));
-    // };
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setState((prevProps) => ({
+            ...prevProps,
+            [name]: value
+        }));
+    };
 
     const getFromAcct = async () => {
         const {
@@ -65,57 +48,38 @@ export default function StoreAddItem() {
         return [address, { signer: injector.signer }]
     }
     const handleSubmit = async (event) => {
-        // Create one-liner timer function
-
-        // Start timer
-
-
-        if (event) {
-            event.preventDefault();
-
-        }
-
+        event.preventDefault();
 
         let paramFields = [];
         let inputParams = [];
-        paramFields.push({
-            name: 'addressTo',
-            optional: false,
-            type: "Bytes"
-        })
-        paramFields.push({
-            name: 'amount',
-            optional: false,
-            type: "u32"
-        })
+        Object.getOwnPropertyNames(state).forEach(data => {
+            paramFields.push({
+                name: data,
+                optional: false,
+                type: data == "price" || data == "count" ? "u32" : "Bytes"
+            })
+        });
 
-        inputParams.push({
-            type: "Bytes",
-            value: "5DhMq8PYcLaGEgW3urdbqSZpqoYH2vajpmL9wdSRmu35M4rf"
+        Object.values(state).forEach(data => {
+            inputParams.push({
+                type: "Bytes",
+                value: data
+            })
         })
-        inputParams.push({
-            type: "u32",
-            value: "1000000"
-        })
-
         const fromAcct = await getFromAcct()
         const transformed = transformParams(paramFields, inputParams)
         // // transformed can be empty parameters
 
         const txExecute = transformed
-            ? api.tx["balances"]["transfer"](...transformed)
-            : api.tx["balances"]["transfer"]()
-
-        start = window.performance.now();
+            ? api.tx["bussines"]["addItem"](...transformed)
+            : api.tx["bussines"]["addItem"]()
+            
 
         const unsub = await txExecute
             .signAndSend(...fromAcct, txResHandler)
             .catch(txErrHandler)
-        console.log('dfdfd', unsub)
-            // Your code here
-
-            // End timer 
-            ;
+        console.log(unsub)
+        // setUnsub(() => unsub)
 
     };
     const isNumType = type =>
@@ -180,18 +144,55 @@ export default function StoreAddItem() {
         <div className="App">
             <form onSubmit={handleSubmit}>
                 <div className="form-control">
-                    <label></label>
-                    <button type="submit">Start Test</button>
+                    <label>Media</label>
+                    <input
+                        type="text"
+                        name="media"
+                        value={state.media}
+                        onChange={handleInputChange}
+                    />
                 </div>
-            {
-                infoList.map((time,status,index) =>
-                <li key={index}>
-                  <span>Time : {time}</span><span>Status : {status}</span>
-                </li>
-              )
-            }
+                <div className="form-control">
+                    <label>Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={state.title}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="form-control">
+                    <label>Description</label>
+                    <input
+                        type="text"
+                        name="description"
+                        value={state.description}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="form-control">
+                    <label>Price</label>
+                    <input
+                        type="text"
+                        name="price"
+                        value={state.price}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="form-control">
+                    <label>Count</label>
+                    <input
+                        type="text"
+                        name="count"
+                        value={state.count}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className="form-control">
+                    <label></label>
+                    <button type="submit">Add Item</button>
+                </div>
             </form>
-            {/* <div style={{ overflowWrap: 'break-word' }}>{status}</div> */}
         </div>
     );
 

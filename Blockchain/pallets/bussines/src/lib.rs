@@ -19,6 +19,8 @@ use frame_system::pallet_prelude::*;
 pub use pallet::*;
 use sp_io::hashing::blake2_128;
 
+pub type BalanceOf<T> =
+	<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 #[frame_support::pallet]
 pub mod pallet {
 
@@ -55,6 +57,7 @@ pub mod pallet {
 	pub struct Basket<T: Config> {
 		itemId: <T as frame_system::Config>::Hash,
 		items: Vec<UserBasketItemItem<T>>,
+		basketOwner: T::AccountId,
 		customerPay: bool,
 		confirmPay: bool,
 	}
@@ -90,7 +93,6 @@ pub mod pallet {
 		type MinNameLenght: Get<u32>;
 		type Currency: Currency<Self::AccountId>;
 	}
-	pub type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 	#[pallet::pallet]
 	#[pallet::generate_store(pub(super) trait Store)]
@@ -281,6 +283,7 @@ pub mod pallet {
 								itemId: T::Hashing::hash_of(&add_item),
 								confirmPay: false,
 								customerPay: false,
+								basketOwner: who.clone(),
 								items: add_item,
 							};
 
@@ -301,17 +304,25 @@ pub mod pallet {
 
 		#[pallet::weight(10000)]
 		#[transactional]
-		pub fn transferTo(origin: OriginFor<T>, sendTo: T::AccountId ,amount: BalanceOf<T>) -> DispatchResult {
+		pub fn transferTo(
+			origin: OriginFor<T>,
+			sendTo: T::AccountId,
+			amount: BalanceOf<T>,
+		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
 			let mut count = 0;
 			while count <= 166666 {
-				T::Currency::transfer(&who.clone(), &sendTo, amount, ExistenceRequirement::KeepAlive)?;
-				log::info!("***** Transfer {:?}",count);
-				count = count +1;
+				T::Currency::transfer(
+					&who.clone(),
+					&sendTo,
+					amount,
+					ExistenceRequirement::KeepAlive,
+				)?;
+				log::info!("***** Transfer {:?}", count);
+				count = count + 1;
 			}
 			Ok(())
-			
 		}
 
 		#[pallet::weight(10000)]
@@ -327,7 +338,16 @@ pub mod pallet {
 					Some(basket) => {
 						let mut total_price = 0;
 						total_price = basket.items.iter().map(|x| x.price * x.count).sum();
-						// T::Currency::log::info!("**************** Total Price {:?}", total_price);
+						log::info!("**************** Total Price {:?}", total_price);
+						let storeInfo =
+							Self::businesss(&who.clone()).ok_or(<Error<T>>::StoreNoFound)?;
+
+						// T::Currency::transfer(
+						// 	&who.clone(),
+						// 	&basket.basketOwner,
+						// 	total_price,
+						// 	ExistenceRequirement::KeepAlive,
+						// )?;
 						Ok(())
 					},
 					_ => Err(<Error<T>>::StoreItemNotFound.into()),
@@ -340,6 +360,10 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
+	// Note the warning above about saturated conversions
+	// pub fn u64_to_balance_saturated(input: u64) -> BalanceOf<T> {
+	// 	input.saturated_into()
+	// }
 	// fn get_and_increment_nonce() -> Vec<u8> {
 	// 	let nonce = Nonce::<T>::get();
 	// 	let no = Some(nonce);
