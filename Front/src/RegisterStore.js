@@ -2,20 +2,32 @@ import React, { useState } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
+import { Form } from 'semantic-ui-react'
 
 export default function RegisterStore() {
+
     const [state, setState] = useState({
         name: "",
         logo: "",
         description: "",
+        isLoading: false
     });
 
     const { api, currentAccount } = useSubstrateState()
 
-    const txResHandler = ({ status }) =>
-        status.isFinalized
-            ? console.log(`😉 Finalized. Block hash: ${status.asFinalized.toString()}`)
-            : console.log(`Current transaction status: ${status.type}`)
+    const txResHandler = ({ status }) =>{
+        if(status.isFinalized){
+            console.log(`😉 Finalized. Block hash: ${status.asFinalized.toString()}`);
+        }else{
+            console.log(`Current transaction status: ${status.type}`)
+        }
+        if(status.type=='InBlock'){
+            setState((prevProps) => ({
+                ...prevProps,
+                isLoading: false
+            }));
+        }
+        }
 
 
 
@@ -47,24 +59,16 @@ export default function RegisterStore() {
     }
 
     const handleSubmit = async (event) => {
+        setState((prevProps) => ({
+            ...prevProps,
+            isLoading: true
+        }));
+    
         event.preventDefault();
-
-        let paramFields = [];
-        let inputParams = [];
-        Object.getOwnPropertyNames(state).forEach(data => {
-            paramFields.push({
-                name: data,
-                optional: false,
-                type: "Bytes"
-            })
-        });
-
-        Object.values(state).forEach(data => {
-            inputParams.push({
-                type: "Bytes",
-                value: data
-            })
-        });
+        // setIsLoading(true);
+        let paramFields = ['name', 'pass', 'desceiption'];
+        let inputParams = [{type: "Bytes", value: state.name}, {type: "Bytes", value: state.pass}, {type: "Bytes", value: state.description}];
+          
 
         const fromAcct = await getFromAcct()
         const transformed = transformParams(paramFields, inputParams)
@@ -137,43 +141,38 @@ export default function RegisterStore() {
             }
             return [...memo, converted]
         }, [])
+        
     }
 
     return (
         <div className="App">
-            <form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit}>
                 <div className="form-control">
-                    <label>Store Name</label>
-                    <input
+                    <Form.Input
                         type="text"
                         name="name"
                         value={state.name}
                         onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
-                    <label>Description</label>
-                    <input
+                        fluid icon='user' iconPosition='left' placeholder='Store Name' />
+
+                    <Form.Input
                         type="text"
                         name="description"
                         value={state.description}
                         onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
-                    <label>Password</label>
-                    <input
+                        fluid icon='file alternate' iconPosition='left' placeholder='Description' />
+
+                    <Form.Input
                         type="text"
                         name="logo"
                         value={state.logo}
                         onChange={handleInputChange}
-                    />
+                        fluid icon='key' iconPosition='left' placeholder='Password' />
+
+
+                    <Form.Button color="blue" type="submit" loading={state.isLoading}>Register</Form.Button>
                 </div>
-                <div className="form-control">
-                    <label></label>
-                    <button type="submit">Register</button>
-                </div>
-            </form>
+            </Form>
         </div>
     );
 

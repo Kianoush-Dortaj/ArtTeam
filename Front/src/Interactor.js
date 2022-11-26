@@ -49,6 +49,7 @@ function Main(props) {
   }
 
   const updateCallables = () => {
+    alert(34)
     if (!api || palletRpc === '') {
       return
     }
@@ -262,7 +263,6 @@ function Main(props) {
 }
 
 function InteractorSubmit(props) {
-
   const {
     attrs: { interxType },
   } = props
