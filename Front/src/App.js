@@ -4,6 +4,7 @@ import {
   Loader,
   Grid,
   Message,
+  Container
 } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
 import { Link, Route, Routes } from "react-router-dom";
@@ -21,6 +22,8 @@ import { SubstrateContextProvider, useSubstrateState } from './substrate-lib'
 // import RegisterStore from './RegisterStore'
 // import StoreAddItem from './StoreAddItem';
 import ItemList from './ItemList';
+import RegisterStore from './RegisterStore';
+import StoreAddItem from './StoreAddItem';
 
 // import TemplateModule from './TemplateModule'
 // import Transfer from './Transfer'
@@ -66,15 +69,25 @@ function Main() {
       <nav>
         <ul>
           <li>
-            <Link to="/itemList">About</Link>
+          <Link to="/itemList">About</Link>
           </li>
+          <li>
+          <Link to="/register-store">RegisterStore</Link>
+          </li>
+          <li>
+          <Link to="/store-add-item">StoreAddItem</Link>
+          </li>
+      
         </ul>
       </nav>
-
+      <Container>
       <Routes>
         <Route path="/itemList" element={<ItemList />} />
-        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/register-store" element={<RegisterStore />} />
+        <Route path="/store-add-item" element={<StoreAddItem />} />
       </Routes>
+      </Container>
+  
     </div>
   </div>
   )

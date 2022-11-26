@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
+import { Form } from 'semantic-ui-react'
 
 export default function StoreAddItem() {
     const [state, setState] = useState({
@@ -73,7 +74,7 @@ export default function StoreAddItem() {
         const txExecute = transformed
             ? api.tx["bussines"]["addItem"](...transformed)
             : api.tx["bussines"]["addItem"]()
-            
+
 
         const unsub = await txExecute
             .signAndSend(...fromAcct, txResHandler)
@@ -142,57 +143,50 @@ export default function StoreAddItem() {
 
     return (
         <div className="App">
-            <form onSubmit={handleSubmit}>
-                <div className="form-control">
+            <Form onSubmit={handleSubmit}>
+                <Form.Field>
                     <label>Media</label>
-                    <input
-                        type="text"
+                    <input type="text"
                         name="media"
                         value={state.media}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
+                        onChange={handleInputChange} />
+                </Form.Field>
+
+
+                <Form.Field>
                     <label>Title</label>
-                    <input
-                        type="text"
+                    <input type="text"
                         name="title"
                         value={state.title}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
+                        onChange={handleInputChange} />
+                </Form.Field>
+     
+                <Form.Field>
                     <label>Description</label>
-                    <input
-                        type="text"
+                    <input type="text"
                         name="description"
                         value={state.description}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
+                        onChange={handleInputChange} />
+                </Form.Field>
+
+                <Form.Field>
                     <label>Price</label>
-                    <input
-                        type="text"
+                    <input type="text"
                         name="price"
                         value={state.price}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
+                        onChange={handleInputChange} />
+                </Form.Field>
+
+                <Form.Field>
                     <label>Count</label>
-                    <input
-                        type="text"
+                    <input type="text"
                         name="count"
                         value={state.count}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div className="form-control">
-                    <label></label>
-                    <button type="submit">Add Item</button>
-                </div>
-            </form>
+                        onChange={handleInputChange} />
+                </Form.Field>
+                <Form.Button color="blue" type="submit" loading={state.isLoading}>Add Item</Form.Button>
+
+            </Form>
         </div>
     );
 

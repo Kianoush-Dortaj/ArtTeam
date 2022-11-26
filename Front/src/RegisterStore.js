@@ -9,7 +9,7 @@ export default function RegisterStore() {
     const [state, setState] = useState({
         name: "",
         logo: "",
-        description: "",
+        description: "", 
         isLoading: false
     });
 
