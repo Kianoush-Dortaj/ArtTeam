@@ -6,7 +6,7 @@ import { useSubstrateState } from './substrate-lib'
 // Events to be filtered from feed
 const FILTERED_EVENTS = [
   'system:ExtrinsicSuccess::(phase={"applyExtrinsic":0})',
-]
+] 
 
 const eventName = ev => `${ev.section}:${ev.method}`
 const eventParams = ev => JSON.stringify(ev.data)
