@@ -19,7 +19,7 @@ import Events from './Events'
 import Interactor from './Interactor'
 import Metadata from './Metadata'
 import NodeInfo from './NodeInfo'
-import TemplateModule from './TemplateModule'
+// import TemplateModule from './TemplateModule'
 import Transfer from './Transfer'
 import Upgrade from './Upgrade'
 
@@ -82,7 +82,7 @@ export default function Home() {
             <Events />
           </Grid.Row>
           <Grid.Row>
-            <TemplateModule />
+            {/* <TemplateModule /> */}
           </Grid.Row>
         </Grid>
       </Container>

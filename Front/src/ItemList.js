@@ -1,8 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { Header, Container, Segment, Form, Icon } from 'semantic-ui-react'
+import QRCode from "react-qr-code";
+
 export default function ItemList() {
 
     const [items, setItems] = useState(null);
@@ -50,41 +52,41 @@ export default function ItemList() {
     const handleSubmit = async (event) => {
 
 
-            let item = {
-                "0": currentAccount.address
-            }
+        let item = {
+            "0": currentAccount.address
+        }
 
-            let paramFields = [];
-            let inputParams = [];
-            Object.getOwnPropertyNames(item).forEach(data => {
-                paramFields.push({
-                    name: data,
-                    optional: false,
-                    type: "0"
-                })
-            });
-
-            Object.values(item).forEach(data => {
-                inputParams.push({
-                    type: "0",
-                    value: data
-                })
+        let paramFields = [];
+        let inputParams = [];
+        Object.getOwnPropertyNames(item).forEach(data => {
+            paramFields.push({
+                name: data,
+                optional: false,
+                type: "0"
             })
+        });
 
-            const transformed = transformParams(paramFields, inputParams)
-            // // transformed can be empty parameters
+        Object.values(item).forEach(data => {
+            inputParams.push({
+                type: "0",
+                value: data
+            })
+        })
 
-            const unsub = await api.query["bussines"]["items"](
-                ...transformed,
-                queryResHandler
-            )
+        const transformed = transformParams(paramFields, inputParams)
+        // // transformed can be empty parameters
 
-            console.log(unsub)
-            // setUnsub(() => unsub)
-            
+        const unsub = await api.query["bussines"]["items"](
+            ...transformed,
+            queryResHandler
+        )
 
-            // setUnsub(() => unsub)
- 
+        console.log(unsub)
+        // setUnsub(() => unsub)
+
+
+        // setUnsub(() => unsub)
+
 
     };
 
@@ -186,7 +188,7 @@ export default function ItemList() {
         console.log(unsub)
         // setUnsub(() => unsub)
     }
-    
+
     useEffect(() => {
         handleSubmit();
     }, [])
@@ -208,7 +210,7 @@ export default function ItemList() {
                                 <p>
                                     <Form.Button color="green" ><Icon color='white' name='dollar sign' size='large' />{item.price}</Form.Button>
                                     <Form.Button style={{ marginTop: '1em' }} color="blue" onClick={addItemToBasket} content='Labeled' icon='add' labelPosition='left'><Icon color='white' name='add' size='large' />Add to basket</Form.Button>
-
+                                    <QRCode value="aerogjerasi;ughaero;iuhga;iuerghae;ruighaeriuh" style={{ marginTop: '1em' }} />
                                 </p></Segment>
                         </Container>
 
