@@ -14,6 +14,7 @@ import { SubstrateContextProvider, useSubstrateState } from './substrate-lib'
 import ItemList from './ItemList';
 import RegisterStore from './RegisterStore';
 import StoreAddItem from './StoreAddItem';
+import SmartContract from './SmartContract';
 
 import Home from './Home'
 
@@ -69,6 +70,14 @@ function Main() {
     <Menu.Item>
     <Link to="/store-add-item">Add Product</Link>
     </Menu.Item>
+    <Menu.Item>
+    <Link to="/smart-contract">Uplaod Smart Special Format Contract</Link>
+    </Menu.Item>
+    <Menu.Item>
+    <a href="https://contracts-ui.substrate.io/?rpc=ws://127.0.0.1:9944" target="_blank" rel="noreferrer noopener">
+   Uplaod Wasm Smart Contract
+</a>
+    </Menu.Item>
 
    
   </Menu>
@@ -79,6 +88,8 @@ function Main() {
         <Route path="/itemList" element={<ItemList />} />
         <Route path="/register-store" element={<RegisterStore />} />
         <Route path="/store-add-item" element={<StoreAddItem />} />
+        <Route path="/smart-contract" element={<SmartContract />} />
+        
       </Routes>
       </Container>
   

@@ -2,37 +2,35 @@ import React, { useState } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
-import { Form } from 'semantic-ui-react'
-  import { toast, ToastContainer } from 'react-toastify';
-  import "react-toastify/dist/ReactToastify.css";
+import { Form, TextArea } from 'semantic-ui-react'
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
-export default function RegisterStore() {
+export default function SmartContract() {
 
     const [state, setState] = useState({
-        name: "",
-        logo: "",
-        description: "", 
-        isLoading: false
+        code: "",
+        storageDepositLimit: "NONE"
     });
 
     const { api, currentAccount } = useSubstrateState()
 
-    const txResHandler = ({ status }) =>{
-        if(status.isFinalized){
+    const txResHandler = ({ status }) => {
+        if (status.isFinalized) {
             console.log(`😉 Finalized. Block hash: ${status.asFinalized.toString()}`);
-        }else{
+        } else {
             console.log(`Current transaction status: ${status.type}`)
         }
-        if(status.type=='InBlock'){
+        if (status.type == 'InBlock') {
             setState((prevProps) => ({
                 ...prevProps,
                 isLoading: false
             }));
             toast.success("Store registered successfully.", {
                 position: toast.POSITION.TOP_RIGHT
-              });
+            });
         }
-        }
+    }
 
 
 
@@ -68,19 +66,19 @@ export default function RegisterStore() {
             ...prevProps,
             isLoading: true
         }));
-    
+
         event.preventDefault();
-        let paramFields = ['name', 'pass', 'desceiption'];
-        let inputParams = [{type: "Bytes", value: state.name}, {type: "Bytes", value: state.pass}, {type: "Bytes", value: state.description}];
-          
+        let paramFields = ['code','storageDepositLimit'];
+        let inputParams = [{ type: "Bytes", value: state.code }, { type: "Bytes", value: state.storageDepositLimit }];
+
 
         const fromAcct = await getFromAcct()
         const transformed = transformParams(paramFields, inputParams)
         // // transformed can be empty parameters
-
+        console.log(transformed)
         const txExecute = transformed
-            ? api.tx["bussines"]["registerStore"](...transformed)
-            : api.tx["bussines"]["registerStore"]()
+            ? api.tx["contracts"]["uploadCode"](...transformed)
+            : api.tx["contracts"]["uploadCode"]()
 
         const unsub = await txExecute
             .signAndSend(...fromAcct, txResHandler)
@@ -145,41 +143,25 @@ export default function RegisterStore() {
             }
             return [...memo, converted]
         }, [])
-        
+
     }
 
     return (
         <div className="App">
             <Form onSubmit={handleSubmit}>
                 <div className="form-control">
-                    <Form.Input
-                        type="text"
-                        name="name"
-                        value={state.name}
+                    <TextArea type="text"
+                        name="code"
+                        value={state.code}
                         onChange={handleInputChange}
-                        fluid icon='user' iconPosition='left' placeholder='Store Name' />
+                        fluid icon='key' iconPosition='left' placeholder='code' style={{ minHeight: 300 }} />
 
-                    <Form.Input
-                        type="text"
-                        name="description"
-                        value={state.description}
-                        onChange={handleInputChange}
-                        fluid icon='file alternate' iconPosition='left' placeholder='Description' />
-
-                    <Form.Input
-                        type="text"
-                        name="logo"
-                        value={state.logo}
-                        onChange={handleInputChange}
-                        fluid icon='url' iconPosition='left' placeholder='Short URL' />
-
-
-                    <Form.Button color="blue" type="submit" loading={state.isLoading}>Register</Form.Button>
+                    <Form.Button style={{ marginTop: 10 }} color="blue" type="submit" loading={state.isLoading}>Uplaod Smart Contract</Form.Button>
                 </div>
             </Form>
             <ToastContainer />
         </div>
-        
+
     );
 
 
