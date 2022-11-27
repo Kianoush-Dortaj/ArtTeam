@@ -3,6 +3,7 @@ import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { Form } from 'semantic-ui-react'
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function StoreAddItem() {
     const [state, setState] = useState({
@@ -11,20 +12,42 @@ export default function StoreAddItem() {
         title: "",
         price: 0,
         count: 0,
+        isLoading: false
     });
 
     const { api, currentAccount } = useSubstrateState()
 
-    const txResHandler = ({ status }) =>
+    const txResHandler = ({ status }) => {
         status.isFinalized
             ? console.log(`😉 Finalized. Block hash: ${status.asFinalized.toString()}`)
             : console.log(`Current transaction status: ${status.type}`)
+        if (status.type == 'InBlock') {
+            toast.success("Item added successfully.", {
+                position: toast.POSITION.TOP_RIGHT
+            });
+            setState((prevProps) => ({
+                ...prevProps,
+                media: "",
+                description: "",
+                title: "",
+                price: 0,
+                count: 0,
+                isLoading: false
+            }));
+            document.getElementById("addForm").reset();
+        }
+
+    }
 
 
 
-    const txErrHandler = err =>
+
+    const txErrHandler = err => {
         console.log(`😞 Transaction Failed: ${err.toString()}`)
-
+        toast.success("Error: Transaction Failed..", {
+            position: toast.POSITION.TOP_RIGHT
+        });
+    }
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setState((prevProps) => ({
@@ -49,24 +72,15 @@ export default function StoreAddItem() {
         return [address, { signer: injector.signer }]
     }
     const handleSubmit = async (event) => {
+        setState((prevProps) => ({
+            ...prevProps,
+            isLoading: true
+        }));
         event.preventDefault();
 
-        let paramFields = [];
-        let inputParams = [];
-        Object.getOwnPropertyNames(state).forEach(data => {
-            paramFields.push({
-                name: data,
-                optional: false,
-                type: data == "price" || data == "count" ? "u32" : "Bytes"
-            })
-        });
+        let paramFields = ["media", "description", "title", "price", "count"];
+        let inputParams = [{ type: "Bytes", value: state.media }, { type: "Bytes", value: state.description }, { type: "Bytes", value: state.title }, { type: "u32", value: state.price }, { type: "u32", value: state.count }];
 
-        Object.values(state).forEach(data => {
-            inputParams.push({
-                type: "Bytes",
-                value: data
-            })
-        })
         const fromAcct = await getFromAcct()
         const transformed = transformParams(paramFields, inputParams)
         // // transformed can be empty parameters
@@ -143,7 +157,7 @@ export default function StoreAddItem() {
 
     return (
         <div className="App">
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} id="addForm">
                 <Form.Field>
                     <label>Media</label>
                     <input type="text"
@@ -160,7 +174,7 @@ export default function StoreAddItem() {
                         value={state.title}
                         onChange={handleInputChange} />
                 </Form.Field>
-     
+
                 <Form.Field>
                     <label>Description</label>
                     <input type="text"
@@ -187,6 +201,7 @@ export default function StoreAddItem() {
                 <Form.Button color="blue" type="submit" loading={state.isLoading}>Add Item</Form.Button>
 
             </Form>
+            <ToastContainer />
         </div>
     );
 

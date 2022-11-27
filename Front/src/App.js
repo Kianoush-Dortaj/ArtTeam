@@ -1,4 +1,5 @@
 import React from 'react'
+import { Menu } from 'semantic-ui-react'
 import {
   Dimmer,
   Loader,
@@ -10,28 +11,14 @@ import 'semantic-ui-css/semantic.min.css'
 import { Link, Route, Routes } from "react-router-dom";
 
 import { SubstrateContextProvider, useSubstrateState } from './substrate-lib'
-// import { DeveloperConsole } from './substrate-lib/components'
-
-// import AccountSelector from './AccountSelector'
-// import Balances from './Balances'
-// import BlockNumber from './BlockNumber'
-// import Events from './Events'
-// import Interactor from './Interactor'
-// import Metadata from './Metadata'
-// import NodeInfo from './NodeInfo'
-// import RegisterStore from './RegisterStore'
-// import StoreAddItem from './StoreAddItem';
 import ItemList from './ItemList';
 import RegisterStore from './RegisterStore';
 import StoreAddItem from './StoreAddItem';
 
-// import TemplateModule from './TemplateModule'
-// import Transfer from './Transfer'
-// import Upgrade from './Upgrade'
+import Home from './Home'
 
 function Main() {
   const { apiState, apiError, keyringState } = useSubstrateState()
-
   const loader = text => (
     <Dimmer active>
       <Loader size="small">{text}</Loader>
@@ -64,24 +51,31 @@ function Main() {
   // const contextRef = createRef()
 
   return (
+
     <div>
     <div>
-      <nav>
-        <ul>
-          <li>
-          <Link to="/itemList">About</Link>
-          </li>
-          <li>
-          <Link to="/register-store">RegisterStore</Link>
-          </li>
-          <li>
-          <Link to="/store-add-item">StoreAddItem</Link>
-          </li>
-      
-        </ul>
-      </nav>
+    <Menu>
+    <Menu.Item>
+     <Link to="/home">Home</Link>
+    </Menu.Item>
+    <Menu.Item>
+     <Link to="/itemList">Product list</Link>
+    </Menu.Item>
+
+    <Menu.Item>
+       <Link to="/register-store">RegisterStore</Link>
+    </Menu.Item>
+
+    <Menu.Item>
+    <Link to="/store-add-item">Add Product</Link>
+    </Menu.Item>
+
+   
+  </Menu>
       <Container>
       <Routes>
+      <Route path='/' element={<Home /> }/>
+        <Route path="/home" element={<Home />} />
         <Route path="/itemList" element={<ItemList />} />
         <Route path="/register-store" element={<RegisterStore />} />
         <Route path="/store-add-item" element={<StoreAddItem />} />

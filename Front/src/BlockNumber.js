@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Statistic, Grid, Card, Icon } from 'semantic-ui-react'
-
 import { useSubstrateState } from './substrate-lib'
 
 function Main(props) {

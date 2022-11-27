@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
-
+import { Header, Container, Segment, Form, Icon } from 'semantic-ui-react'
 export default function ItemList() {
 
     const [setUnsub] = useState(null)
@@ -13,7 +13,7 @@ export default function ItemList() {
         countItem: 0,
     });
 
-    const { api, currentAccount } = useSubstrateState()
+    const { api, currentAccount } = useSubstrateState();
     // setState((prevProps) => ({
     //     ...prevProps,
     //     "0": ""
@@ -45,13 +45,13 @@ export default function ItemList() {
 
 
     const queryResHandler = result =>
-        result.isNone ? console.log('None') : setItems(JSON.parse(result.toString()));
+        result.isNone ? console.log('None') : setItems(result.toHuman());
 
 
 
     const handleSubmit = async (event) => {
 
-        event.preventDefault();
+        //  event.preventDefault();
 
         let item = {
             "0": currentAccount.address
@@ -146,15 +146,8 @@ export default function ItemList() {
         }, [])
     }
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setState((prevProps) => ({
-            ...prevProps,
-            [name]: value
-        }));
-    };
 
-    const addItemToBasket = async ( event) => {
+    const addItemToBasket = async (event) => {
         event.preventDefault()
         setState((prevProps) => ({
             ...prevProps,
@@ -196,21 +189,34 @@ export default function ItemList() {
         // setUnsub(() => unsub)
     }
 
+
+    handleSubmit();
+
     return (
         <div className="App">
 
-            <button onClick={handleSubmit}>Get Items</button>
-
-            <ul>
+            <div>
                 {items !== null && items.map(function (item) {
-                    return <li key={item.itemId}>Id : {item.itemId} - Title : {item.title} - Logo : {item.media}
-                        <form  >
-                            < button onClick={addItemToBasket} type="submit"> Add To Basket</button><input value={state.countItem}
-                                onChange={handleInputChange} name="countItem" placeholder="countItem"></input>
-                        </form>
-                    </li>;
+                    return <div key={item.itemId}>
+
+                        <Container style={{ paddingTop: '2em' }} text dividing>
+
+                            <Header as='h1' attached='top' block>
+                                {item.title}
+                            </Header>
+                            <Segment attached>  <h5>{item.description}</h5>
+
+                                <p>
+                                <Form.Button color="green"  onClick={addItemToBasket} ><Icon color='white' name='dollar sign' size='large' />{item.price}</Form.Button>
+                                <Form.Button style={{ marginTop: '1em' }} color="blue"  onClick={addItemToBasket} content='Labeled' icon='add' labelPosition='left'><Icon color='white' name='add' size='large' />Add to basket</Form.Button>
+                                
+                                </p></Segment>
+                        </Container>
+
+                        
+                    </div>;
                 })}
-            </ul>
+            </div>
 
         </div>
     );

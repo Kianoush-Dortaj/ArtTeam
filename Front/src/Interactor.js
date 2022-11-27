@@ -49,7 +49,6 @@ function Main(props) {
   }
 
   const updateCallables = () => {
-    alert(34)
     if (!api || palletRpc === '') {
       return
     }

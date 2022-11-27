@@ -3,6 +3,8 @@ import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { Form } from 'semantic-ui-react'
+  import { toast, ToastContainer } from 'react-toastify';
+  import "react-toastify/dist/ReactToastify.css";
 
 export default function RegisterStore() {
 
@@ -26,6 +28,9 @@ export default function RegisterStore() {
                 ...prevProps,
                 isLoading: false
             }));
+            toast.success("Store registered successfully.", {
+                position: toast.POSITION.TOP_RIGHT
+              });
         }
         }
 
@@ -65,7 +70,6 @@ export default function RegisterStore() {
         }));
     
         event.preventDefault();
-        // setIsLoading(true);
         let paramFields = ['name', 'pass', 'desceiption'];
         let inputParams = [{type: "Bytes", value: state.name}, {type: "Bytes", value: state.pass}, {type: "Bytes", value: state.description}];
           
@@ -173,7 +177,9 @@ export default function RegisterStore() {
                     <Form.Button color="blue" type="submit" loading={state.isLoading}>Register</Form.Button>
                 </div>
             </Form>
+            <ToastContainer />
         </div>
+        
     );
 
 
