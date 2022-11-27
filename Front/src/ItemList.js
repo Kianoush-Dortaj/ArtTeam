@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import utils from './substrate-lib/utils';
 import { useSubstrateState } from './substrate-lib/SubstrateContext';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { Header, Container, Segment, Form, Icon } from 'semantic-ui-react'
 export default function ItemList() {
 
-    const [setUnsub] = useState(null)
     const [items, setItems] = useState(null);
 
     const [state, setState] = useState({
         itemId: '',
-        countItem: 0,
+        countItem: 1,
     });
 
     const { api, currentAccount } = useSubstrateState();
@@ -48,45 +47,44 @@ export default function ItemList() {
         result.isNone ? console.log('None') : setItems(result.toHuman());
 
 
-
     const handleSubmit = async (event) => {
 
-        //  event.preventDefault();
 
-        let item = {
-            "0": currentAccount.address
-        }
+            let item = {
+                "0": currentAccount.address
+            }
 
-        let paramFields = [];
-        let inputParams = [];
-        Object.getOwnPropertyNames(item).forEach(data => {
-            paramFields.push({
-                name: data,
-                optional: false,
-                type: "0"
+            let paramFields = [];
+            let inputParams = [];
+            Object.getOwnPropertyNames(item).forEach(data => {
+                paramFields.push({
+                    name: data,
+                    optional: false,
+                    type: "0"
+                })
+            });
+
+            Object.values(item).forEach(data => {
+                inputParams.push({
+                    type: "0",
+                    value: data
+                })
             })
-        });
 
-        Object.values(item).forEach(data => {
-            inputParams.push({
-                type: "0",
-                value: data
-            })
-        })
+            const transformed = transformParams(paramFields, inputParams)
+            // // transformed can be empty parameters
 
-        const transformed = transformParams(paramFields, inputParams)
-        // // transformed can be empty parameters
+            const unsub = await api.query["bussines"]["items"](
+                ...transformed,
+                queryResHandler
+            )
 
-        const unsub = await api.query["bussines"]["items"](
-            ...transformed,
-            queryResHandler
-        )
+            console.log(unsub)
+            // setUnsub(() => unsub)
+            
 
-
-        setUnsub(() => unsub)
-
-
-        // setUnsub(() => unsub)
+            // setUnsub(() => unsub)
+ 
 
     };
 
@@ -188,9 +186,10 @@ export default function ItemList() {
         console.log(unsub)
         // setUnsub(() => unsub)
     }
-
-
-    handleSubmit();
+    
+    useEffect(() => {
+        handleSubmit();
+    }, [])
 
     return (
         <div className="App">
@@ -207,13 +206,13 @@ export default function ItemList() {
                             <Segment attached>  <h5>{item.description}</h5>
 
                                 <p>
-                                <Form.Button color="green"  onClick={addItemToBasket} ><Icon color='white' name='dollar sign' size='large' />{item.price}</Form.Button>
-                                <Form.Button style={{ marginTop: '1em' }} color="blue"  onClick={addItemToBasket} content='Labeled' icon='add' labelPosition='left'><Icon color='white' name='add' size='large' />Add to basket</Form.Button>
-                                
+                                    <Form.Button color="green" ><Icon color='white' name='dollar sign' size='large' />{item.price}</Form.Button>
+                                    <Form.Button style={{ marginTop: '1em' }} color="blue" onClick={addItemToBasket} content='Labeled' icon='add' labelPosition='left'><Icon color='white' name='add' size='large' />Add to basket</Form.Button>
+
                                 </p></Segment>
                         </Container>
 
-                        
+
                     </div>;
                 })}
             </div>
